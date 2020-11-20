@@ -12,11 +12,9 @@ const connectedPromise = new Promise(resolve => {
     });
 });
 
-export const connect = () => {
+export const connect = processUpdate => {
     connectedPromise.then(() => {
-	socket.on(Constants.MSG_TYPES.GAME_UPDATE, update => {
-	    
-	});
+	socket.on(Constants.MSG_TYPES.GAME_UPDATE, processUpdate);
 	socket.on(Constants.MSG_TYPES.DISCONNECT, () => {
 	    console.log('disconnected from server')
 	});
@@ -28,6 +26,5 @@ export const joinGame = username => {
 };
 
 export const handleInput = input => {
-    console.log(input);
     socket.emit(Constants.MSG_TYPES.INPUT, input);
 };

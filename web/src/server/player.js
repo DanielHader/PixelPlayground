@@ -5,32 +5,72 @@ class Player {
 	this.id = id;
 	this.username = username;
 
-	this.x = x;
-	this.y = y;
+	this.x = Math.floor(x);
+	this.y = Math.floor(y);
 
-	this.vx;
-	this.vy
+	this.nx = this.x;
+	this.ny = this.y;
+	
+	this.fx = this.x;
+	this.fy = this.y;
+	
+	this.direction = Constants.UP;
+
+	this.state = Constants.STOPPED;
+	this.frameTimer = 0;
+
+	this.lastInput = null;
     }
 
     handleInput(input)
     {
-	if (input[Constants.UP])
-	    this.vy = 1;
-	else if (inputs[Constants.DOWN])
-	    this.vy = -1;
-	else if (inputs[Constants.LEFT])
-	    this.vx = -1;
-	else if (inputs[Constants.RIGHT])
-	    this.vx = 1;
+	this.lastInput = input;
     }
     
     update(dt) {
-	this.x += this.vx * dt;
-	this.y += this.vy * dt;
+	if (!this.lastInput)
+	    return;
+
+	if (this.state == Constants.STOPPED) {
+	    if (this.lastInput.lastDir !== null) {
+		this.direction = this.lastInput.lastDir;
+		this.state = Constants.MOVING;
+		this.frameTimer = 0;
+
+		if (this.direction == Constants.UP)
+		    this.ny = this.y + 1;
+		else if (this.direction == Constants.DOWN)
+		    this.ny = this.y - 1;
+		else if (this.direction == Constants.LEFT)
+		    this.nx = this.x - 1;
+		else
+		    this.nx = this.x + 1;
+	    }
+	}
+	if (this.state == Constants.MOVING) {
+	    if (this.frameTimer < 22) {
+		this.frameTimer++;
+		const ratio = this.frameTimer / 22;
+
+		this.fx = this.x * (1 - ratio) + this.nx * ratio;
+		this.fy = this.y * (1 - ratio) + this.ny * ratio;
+	    } else {
+		this.state = Constants.STOPPED;
+		this.frameTimer = 0;
+		this.x = this.nx;
+		this.y = this.ny;
+		this.fx = this.x;
+		this.fy = this.y;
+	    }
+	}
     }
 
     serialize() {
-	return `${this.x},${this.y}`;
+	return {
+	    id: this.id,
+	    x: this.fx,
+	    y: this.fy,
+	};
     }
 }
 

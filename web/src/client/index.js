@@ -1,20 +1,13 @@
-const Renderer = require('./render');
-const Input = require('./input');
-const Player = require('./player');
-
-import { connect, joinGame, handleInput } from './network';
+import { startRendering } from './render';
+import { processUpdate } from './state';
+import { startInput } from './input';
+import { connect, joinGame } from './network';
 
 import './css/main.css';
 
-const renderer = new Renderer();
-const input = new Input();
-const player = new Player(2, 2, 0xffff00, renderer);
+startInput();
+startRendering();
 
-renderer.render();
-
-connect();
-
-setInterval(() => {
-    handleInput(input.serialize());
-}, 1000 / 60);
+connect(processUpdate);
+joinGame('test');
 

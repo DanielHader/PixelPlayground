@@ -1,82 +1,87 @@
 
+import { handleInput } from './network';
+
 const Constants = require('../shared/constants');
 
-class Input {
-    constructor() {
-	this.keys = {
-	    up:    false,
-	    down:  false,
-	    left:  false,
-	    right: false,
-	    run:   false
-	};
+export const keys = {
+    up:    false,
+    down:  false,
+    left:  false,
+    right: false,
+    run:   false
+};
 
-	this.held_dirs = new Set();
-	this.last_dir = Constants.UP;
+export const heldDirs = new Set();
+export let lastDir = null;
 	
-	document.addEventListener('keydown', (e)=>{this.keydown(e)});
-	document.addEventListener('keyup', (e)=>{this.keyup(e)});
-    }
+document.addEventListener('keydown', (e)=>{keydown(e)});
+document.addEventListener('keyup', (e)=>{keyup(e)});
 
-    serialize() {
-	return `${this.keys.up},${this.keys.down},${this.keys.left},${this.keys.right}`;
-    }
-    
-    keydown(e) {
-	if (e.code === 'KeyW') {
-	    this.keys.up = true;
-	    this.held_dirs.add(Constants.UP);
-	    this.last_dir = Constants.UP;
-	}
-	else if (e.code === 'KeyA') {
-	    this.keys.up = true;
-	    this.held_dirs.add(Constants.LEFT);
-	    this.last_dir = Constants.LEFT;
-	}
-	else if (e.code === 'KeyS') {
-	    this.keys.down = true;
-	    this.held_dirs.add(Constants.DOWN);
-	    this.last_dir = Constants.DOWN;
-	}
-	else if (e.code === 'KeyD') {
-	    this.keys.right = true;
-	    this.held_dirs.add(Constants.RIGHT);
-	    this.last_dir = Constants.RIGHT;
-	}
-	else if (e.code === 'Space') {
-	    this.keys.run = true;
-	}
-    }
-    
-    keyup(e) {
-	if (e.code === 'KeyW') {
-	    this.keys.up = false;
-	    this.held_dirs.delete(Constants.UP);
-	    if (this.last_dir === Constants.UP)
-		this.last_dir = null;
-	} else if (e.code === 'KeyA'){
-	    this.keys.left = false;
-	    this.held_dirs.delete(Constants.LEFT);
-	    if (this.last_dir === Constants.LEFT)
-		this.last_dir = null;
-	} else if (e.code === 'KeyS') {
-	    this.keys.down = false;
-	    this.held_dirs.delete(Constants.DOWN);
-	    if (this.last_dir === Constants.DOWN)
-		this.last_dir = null;
-	} else if (e.code === 'KeyD') {
-	    this.keys.right = false;
-	    this.held_dirs.delete(Constants.RIGHT);
-	    if (this.last_dir === Constants.RIGHT)
-		this.last_dir = null;
-	} else if (e.code === 'Space') {
-	    this.keys.run = false;
-	}
+export function startInput() {
+    setInterval(()=>{handleInput(serializeInput())}, 1000/60);
+}
 
-	if (this.held_dirs.length > 0)
-	    if (this.last_dir === null)
-		this.last_dir = this.held_dirs.values().next().value;
+function serializeInput() {
+    return {
+	keys: keys,
+	lastDir: lastDir,
+	heldDirs: heldDirs,
+    }
+}
+    
+function keydown(e) {
+    if (e.code === 'KeyW') {
+	keys.up = true;
+	heldDirs.add(Constants.UP);
+	lastDir = Constants.UP;
+    }
+    else if (e.code === 'KeyA') {
+	keys.left = true;
+	heldDirs.add(Constants.LEFT);
+	lastDir = Constants.LEFT;
+    }
+    else if (e.code === 'KeyS') {
+	keys.down = true;
+	heldDirs.add(Constants.DOWN);
+	lastDir = Constants.DOWN;
+    }
+    else if (e.code === 'KeyD') {
+	keys.right = true;
+	heldDirs.add(Constants.RIGHT);
+	lastDir = Constants.RIGHT;
+    }
+    else if (e.code === 'Space') {
+	keys.run = true;
     }
 }
 
-module.exports = Input;
+function keyup(e) {
+    if (e.code === 'KeyW') {
+	keys.up = false;
+	heldDirs.delete(Constants.UP);
+	if (lastDir === Constants.UP)
+	    lastDir = null;
+    } else if (e.code === 'KeyA'){
+	keys.left = false;
+	heldDirs.delete(Constants.LEFT);
+	if (lastDir === Constants.LEFT)
+	    lastDir = null;
+    } else if (e.code === 'KeyS') {
+	keys.down = false;
+	heldDirs.delete(Constants.DOWN);
+	if (lastDir === Constants.DOWN)
+	    lastDir = null;
+    } else if (e.code === 'KeyD') {
+	keys.right = false;
+	heldDirs.delete(Constants.RIGHT);
+	if (lastDir === Constants.RIGHT)
+	    lastDir = null;
+    } else if (e.code === 'Space') {
+	keys.run = false;
+    }
+
+    if (heldDirs.length > 0)
+	if (lastDir === null)
+	    lastDir = heldDirs.values().next().value;
+}
+

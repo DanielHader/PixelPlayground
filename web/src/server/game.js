@@ -1,3 +1,4 @@
+const Constants = require('../shared/constants');
 const Player = require('./player');
 
 class Game {
@@ -16,20 +17,39 @@ class Game {
 	this.lastUpdateTime = now;
 
 	Object.keys(this.sockets).forEach(playerId => {
-	    const socket = this.sockets[playerId];
 	    const player = this.players[playerId];
 
 	    player.update(dt);
-
-	    socket.emit(Constants.MSG_TYPES.GAME_UPDATE, player.serialize());
 	});
+
+	if (this.shouldSendUpdate) {
+	    Object.keys(this.sockets).forEach(playerId => {
+		const socket = this.sockets[playerId];
+		const player = this.players[playerId];
+
+		socket.emit(Constants.MSG_TYPES.GAME_UPDATE, this.serialize(player));
+	    });
+	    this.shouldSendUpdate = false;
+	} else {
+	    this.shouldSendUpdate = true;
+	}
+    }
+
+    serialize(player) {
+	const nearbyPlayers = Object.values(this.players);
+	
+	return {
+	    t: Date.now(),
+	    me: player.id,
+	    players: nearbyPlayers.map(p => p.serialize()),
+	};
     }
     
     addPlayer(socket, username) {
 	this.sockets[socket.id] = socket;
 
-	const x = Math.floor(Math.random() * 10);
-	const y = Math.floor(Math.random() * 10);
+	const x = Math.random() * 2 - 1;
+	const y = Math.random() * 2 - 1;
 
 	this.players[socket.id] = new Player(socket.id, username, x, y);
     }
@@ -44,3 +64,5 @@ class Game {
 	    this.players[socket.id].handleInput(input);
     }
 }
+
+module.exports = Game;
