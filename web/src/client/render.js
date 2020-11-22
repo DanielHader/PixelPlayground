@@ -1,5 +1,6 @@
 import * as three from 'three';
 
+import { getShader, getTexture, Sprite } from './sprite';
 import { getCurrentState, playersById } from './state';
 import { Player } from './player';
 
@@ -8,24 +9,10 @@ const scene = new three.Scene();
 const camera = new three.PerspectiveCamera(75, aspect, 0.1, 1000);
 const gl = new three.WebGLRenderer();
 
-//const g = new three.PlaneBufferGeometry();
-//const m = new three.MeshBasicMaterial({color: 0xffffff, side: three.DoubleSide});
-//const q = new three.Mesh(g, m);
-//scene.add(q);
-
-camera.position.z = 5;
+camera.position.z = 2;
 
 gl.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(gl.domElement);
-
-export function makeSprite(color) {
-    const geometry = new three.PlaneBufferGeometry();
-    const material = new three.MeshBasicMaterial({color: color, side: three.DoubleSide});
-    const quad = new three.Mesh(geometry, material);
-    scene.add(quad);
-
-    return quad;
-}
 
 function render() {
     const state = getCurrentState();
@@ -37,9 +24,12 @@ function render() {
 		if (player.id == state.me) {
 		    color = 0x00ffff;
 		}
-		playersById[player.id] = new Player(player.x, player.y, color);
+		
+		const sprite = new Sprite('link');
+		sprite.addToScene(scene);
+		playersById[player.id] = new Player(0, 0, sprite);
 	    } else {
-		playersById[player.id].sprite.position.set(player.x, player.y, 0);
+		playersById[player.id].sprite.setPosition(0, 0, 0);
 	    }
 	}
     }

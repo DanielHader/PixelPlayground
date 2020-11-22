@@ -1,0 +1,13 @@
+{
+    "spritesheet": "link.png",
+    "frames": {
+	"w0": {
+	    "src": { "x": 34, "y": 31, "w": 16, "h": 22 },
+	    "dst": { "x": 0, "y": 0, "w": 18, "h": 24 },
+	    "duration": 30
+	}
+    },
+    "animations": {
+	"walk": ["w0"]
+    }
+}

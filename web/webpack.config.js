@@ -45,5 +45,10 @@ module.exports = {
     ],
     performance: {
 	hints: false
+    },
+    resolve: {
+	fallback: {
+	    fs: false
+	}
     }
 };
